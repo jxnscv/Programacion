@@ -38,16 +38,7 @@ def convertir_a_dataframe(paises):
 
 paises = obtener_datos_paises()
 df = convertir_a_dataframe(paises)
-st.markdown(
-    """
-    <style>
-    .reportview-container {
-        background-color: #ffcccb;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+
 st.title('Análisis de Datos de Países')
 
 if st.checkbox('Mostrar datos originales'):
