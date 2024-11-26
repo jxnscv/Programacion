@@ -15,7 +15,7 @@ import streamlit as st
 
 def obtener_datos_paises():
     url = 'https://restcountries.com/v3.1/all'
-    respuesta = requests.get(url)
+    respuesta = requests.get(url, timeout=30)
     if respuesta.status_code == 200:
         return respuesta.json()
     else:
