@@ -126,7 +126,7 @@ if mostrar_graficos:
         plt.xlabel(eje_x_grafico_2, fontsize=12)
         plt.ylabel(eje_y_grafico_2, fontsize=12)
         st.pyplot(plt)
-        plt.close() de Países')
+        plt.close()
         mapa = folium.Map(location=[20, 0], zoom_start=2)
         for i in range(len(df_filtrado_graficos)):
             popup_info = (
