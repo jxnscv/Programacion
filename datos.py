@@ -67,7 +67,6 @@ if st.button('Descargar datos filtrados'):
 
 st.subheader('Gráficos de Análisis')
 
-# Checkbox para mostrar gráficos
 mostrar_graficos = st.checkbox('Mostrar gráficos')
 if mostrar_graficos:
     min_area, max_area = st.slider('Selecciona el rango de área en km²',
@@ -105,7 +104,7 @@ if mostrar_graficos:
         st.pyplot(plt)
         plt.close()
 
-
+# Expander para el mapa
 with st.expander('Mostrar Mapa Interactivo'):
     st.subheader('Mapa Interactivo de Países')
     mapa = folium.Map(location=[20, 0], zoom_start=2)
@@ -118,19 +117,4 @@ with st.expander('Mostrar Mapa Interactivo'):
             f"<strong>Población Total:</strong> {df_filtrado_graficos.iloc[i]['Población Total']}<br>"
             f"<strong>Área en km²:</strong> {df_filtrado_graficos.iloc[i]['Área en km²']}<br>"
             f"<strong>Número de Fronteras:</strong> {df_filtrado_graficos.iloc[i]['Número de Fronteras']}<br>"
-            f"<strong>Número de Idiomas Oficiales:</strong> {df_filtrado_graficos.iloc[i]['Número de Idiomas Oficiales']}<br>"
-            f"<strong>Número de Zonas Horarias:</strong> {df_filtrado_graficos.iloc[i]['Número de Zonas Horarias']}<br>"
-        )
-        
-        folium.Marker(
-            location=[df_filtrado_graficos.iloc[i]['Latitud'], df_filtrado_graficos.iloc[i]['Longitud']],
-            popup=popup_info,
-            icon=folium.Icon(color='blue')
-        ).add_to(mapa)
-
-    # Mostrar el mapa en la aplicación Streamlit
-    st_folium(mapa, width=700, height=500)
-        icon=folium.Icon(color='blue')
-    ).add_to(mapa)
-
-st_folium(mapa, width=700, height=500)
+            f"<strong>Número de Idiomas Oficiales:</strong> {df_fil
