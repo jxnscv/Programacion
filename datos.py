@@ -3,17 +3,6 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 
-st.markdown(
-    """
-    <style>
-    .reportview-container {
-        background: #FFCCFF;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 def obtener_datos_paises():
     url = 'https://raw.githubusercontent.com/jxnscv/Programacion/main/all.json'
     respuesta = requests.get(url)
@@ -41,6 +30,18 @@ paises = obtener_datos_paises()
 df = convertir_a_dataframe(paises)
 
 st.title('Análisis de Datos de Países')
+
+color_fondo = st.color_picker('Selecciona el color de fondo', '#FFCCFF')
+st.markdown(
+    f"""
+    <style>
+    .reportview-container {{
+        background: {color_fondo};
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 if st.checkbox('Mostrar datos originales'):
     st.write(df)
@@ -76,18 +77,17 @@ if st.button('Descargar datos filtrados'):
 
 st.subheader('Gráficos de Análisis')
 
-plt.figure(figsize=(10, 5))
-df.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
-plt.title('Población Total por Región')
-plt.xlabel('Región Geográfica')
-plt.ylabel('Población Total')
-plt.xticks(rotation=45)
-st.pyplot(plt)
+mostrar_graficos = st.checkbox('Mostrar gráficos')
 
-plt.figure(figsize=(10, 5))
-plt.scatter(df['Área en km²'], df['Población Total'], alpha=0.7, c='blue')
-plt.title('Área vs Población Total')
-plt.xlabel('Área en km²')
-plt.ylabel('Población Total')
-plt.grid()
-st.pyplot(plt)
+if mostrar_graficos:
+    plt.figure(figsize=(10, 5))
+    df.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
+    plt.title('Población Total por Región', fontsize=16)
+    plt.xlabel('Región Geográfica', fontsize=12)
+    plt.ylabel('Población Total', fontsize=12)
+    plt.xticks(rotation=45)
+    plt.grid(axis='y')
+    st.pyplot(plt)
+    
+    plt.figure(figsize=(10, 5))
+    plt.scatter(df['Área en km²'], df['Población Total'], alpha=0.7, c='blue
