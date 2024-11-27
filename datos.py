@@ -67,7 +67,7 @@ if st.button('Descargar datos filtrados'):
 
 st.subheader('Gráficos de Análisis')
 
-mostrar_graficos = st.checkbox('Mostrar gráficos')
+mostrar_graficos = st.checkbox('Mostrar datos visuales')
 if mostrar_graficos:
     min_area, max_area = st.slider('Selecciona el rango de área en km²',
                                      min_value=int(df['Área en km²'].min()),
@@ -82,9 +82,7 @@ if mostrar_graficos:
     df_filtrado_graficos = df[(df['Área en km²'] >= min_area) & (df['Área en km²'] <= max_area) &
                                (df['Población Total'] >= min_poblacion) & (df['Población Total'] <= max_poblacion)]
 
-    # Expander para gráficos
     with st.expander('Mostrar Gráficos'):
-        # Gráfico de barras
         plt.figure(figsize=(10, 5))
         df_filtrado_graficos.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
         plt.title('Población Total por Región', fontsize=16)
@@ -95,7 +93,6 @@ if mostrar_graficos:
         st.pyplot(plt)
         plt.close()
 
-        # Gráfico de dispersión
         plt.figure(figsize=(10, 5))
         plt.scatter(df_filtrado_graficos['Área en km²'], df_filtrado_graficos['Población Total'], color='blue', alpha=0.5)
         plt.title('Relación entre Área y Población', fontsize=16)
@@ -104,7 +101,6 @@ if mostrar_graficos:
         st.pyplot(plt)
         plt.close()
 
-# Expander para el mapa
 with st.expander('Mostrar Mapa Interactivo'):
     st.subheader('Mapa Interactivo de Países')
     mapa = folium.Map(location=[20, 0], zoom_start=2)
