@@ -31,18 +31,6 @@ df = convertir_a_dataframe(paises)
 
 st.title('Análisis de Datos de Países')
 
-color_fondo = st.color_picker('Selecciona el color de fondo', '#FFCCFF')
-st.markdown(
-    f"""
-    <style>
-    .reportview-container {{
-        background: {color_fondo};
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 if st.checkbox('Mostrar datos originales'):
     st.write(df)
 
@@ -77,22 +65,26 @@ if st.button('Descargar datos filtrados'):
 
 st.subheader('Gráficos de Análisis')
 
+# Opción para mostrar u ocultar gráficos
 mostrar_graficos = st.checkbox('Mostrar gráficos')
 
 if mostrar_graficos:
+    # Rango para el área
+    min_area, max_area = st.slider('Selecciona el rango de área en km²', 
+                                     min_value=int(df['Área en km²'].min()), 
+                                     max_value=int(df['Área en km²'].max()), 
+                                     value=(0, int(df['Área en km²'].max())))
+
+    # Rango para la población
+    min_poblacion, max_poblacion = st.slider('Selecciona el rango de población total', 
+                                               min_value=int(df['Población Total'].min()), 
+                                               max_value=int(df['Población Total'].max()), 
+                                               value=(0, int(df['Población Total'].max())))
+
+    # Filtrar el DataFrame según los rangos seleccionados
+    df_filtrado_graficos = df[(df['Área en km²'] >= min_area) & (df['Área en km²'] <= max_area) &
+                               (df['Población Total'] >= min_poblacion) & (df['Población Total'] <= max_poblacion)]
+
+    # Gráfico de barras de la población total por región
     plt.figure(figsize=(10, 5))
-    df.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
-    plt.title('Población Total por Región', fontsize=16)
-    plt.xlabel('Región Geográfica', fontsize=12)
-    plt.ylabel('Población Total', fontsize=12)
-    plt.xticks(rotation=45)
-    plt.grid(axis='y')
-    st.pyplot(plt)
-    
-    plt.figure(figsize=(10, 5))
-    plt.scatter(df['Área en km²'], df['Población Total'], alpha=0.7, c='blue')
-    plt.title('Área vs Población Total', fontsize=16)
-    plt.xlabel('Área en km²', fontsize=12)
-    plt.ylabel('Población Total', fontsize=12)
-    plt.grid()
-    st.pyplot(plt)
+    df_filtrado_graficos.groupby('Región Geográfica')['Población Total'].sum
