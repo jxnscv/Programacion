@@ -2,9 +2,7 @@ import requests
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-# Cambiar el color de fondo a rosado
 st.markdown(
     """
     <style>
@@ -76,18 +74,20 @@ if st.button('Descargar datos filtrados'):
     excel = df_filtrado.to_excel(index=False, engine='openpyxl')
     st.download_button('Descargar Excel', excel, 'datos_filtrados.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-# Gráficos
 st.subheader('Gráficos de Análisis')
 
-# Gráfico de barras de la población total por región
 plt.figure(figsize=(10, 5))
-sns.barplot(data=df, x='Región Geográfica', y='Población Total', estimator=sum, ci=None)
+df.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
 plt.title('Población Total por Región')
+plt.xlabel('Región Geográfica')
+plt.ylabel('Población Total')
 plt.xticks(rotation=45)
 st.pyplot(plt)
 
-# Gráfico de dispersión del área vs población
 plt.figure(figsize=(10, 5))
-sns.scatterplot(data=df, x='Área en km²', y='Población Total', hue='Región Geográfica', palette='Set1', alpha=0.7)
+plt.scatter(df['Área en km²'], df['Población Total'], alpha=0.7, c='blue')
 plt.title('Área vs Población Total')
+plt.xlabel('Área en km²')
+plt.ylabel('Población Total')
+plt.grid()
 st.pyplot(plt)
