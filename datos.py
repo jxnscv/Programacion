@@ -101,12 +101,25 @@ if mostrar_graficos:
     plt.close()
 
     # Mapa interactivo
-    st.subheader('Mapa Interactivo de Países')
-    mapa = folium.Map(location=[20, 0], zoom_start=2)
-    for i in range(len(df_filtrado_graficos)):
-        folium.Marker(
-            location=[df_filtrado_graficos.iloc[i]['Latitud'], df_filtrado_graficos.iloc[i]['Longitud']],
-            popup=f"{df_filtrado_graficos.iloc[i]['Nombre Común']}: {df_filtrado_graficos.iloc[i]['Población Total']}",
-            icon=folium.Icon(color='blue')
-        ).add_to(mapa)
-    st_folium(mapa, width=700, height=500)
+st.subheader('Mapa Interactivo de Países')
+mapa = folium.Map(location=[20, 0], zoom_start=2)
+
+for i in range(len(df_filtrado_graficos)):
+    # Crear un string con la información que deseas mostrar
+    popup_info = (
+        f"<strong>Nombre Común:</strong> {df_filtrado_graficos.iloc[i]['Nombre Común']}<br>"
+        f"<strong>Región Geográfica:</strong> {df_filtrado_graficos.iloc[i]['Región Geográfica']}<br>"
+        f"<strong>Población Total:</strong> {df_filtrado_graficos.iloc[i]['Población Total']}<br>"
+        f"<strong>Área en km²:</strong> {df_filtrado_graficos.iloc[i]['Área en km²']}<br>"
+        f"<strong>Número de Fronteras:</strong> {df_filtrado_graficos.iloc[i]['Número de Fronteras']}<br>"
+        f"<strong>Número de Idiomas Oficiales:</strong> {df_filtrado_graficos.iloc[i]['Número de Idiomas Oficiales']}<br>"
+        f"<strong>Número de Zonas Horarias:</strong> {df_filtrado_graficos.iloc[i]['Número de Zonas Horarias']}<br>"
+    )
+    
+    folium.Marker(
+        location=[df_filtrado_graficos.iloc[i]['Latitud'], df_filtrado_graficos.iloc[i]['Longitud']],
+        popup=popup_info,
+        icon=folium.Icon(color='blue')
+    ).add_to(mapa)
+
+st_folium(mapa, width=700, height=500)
