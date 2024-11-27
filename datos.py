@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import streamlit as st
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import io
 
 def obtener_datos_paises():
