@@ -70,21 +70,21 @@ st.subheader('Gráficos de Análisis')
 
 mostrar_graficos = st.checkbox('Mostrar Gráficos')
 if mostrar_graficos:
-# Gráfico 1: Población Total por Región
+    # Gráfico 1: Población Total por Región
     st.subheader('Gráfico 1: Población Total por Región')
 
     min_area_1, max_area_1 = st.slider('Selecciona el rango de área en km² para el gráfico 1',
-                                     min_value=int(df['Área en km²'].min()),
-                                     max_value=int(df['Área en km²'].max()),
-                                     value=(0, int(df['Área en km²'].max())))
+                                         min_value=int(df['Área en km²'].min()),
+                                         max_value=int(df['Área en km²'].max()),
+                                         value=(0, int(df['Área en km²'].max())))
 
     min_poblacion_1, max_poblacion_1 = st.slider('Selecciona el rango de población total para el gráfico 1',
-                                               min_value=int(df['Población Total'].min()),
-                                               max_value=int(df['Población Total'].max()),
-                                               value=(0, int(df['Población Total'].max())))
+                                                   min_value=int(df['Población Total'].min()),
+                                                   max_value=int(df['Población Total'].max()),
+                                                   value=(0, int(df['Población Total'].max())))
 
     df_filtrado_grafico_1 = df[(df['Área en km²'] >= min_area_1) & (df['Área en km²'] <= max_area_1) &
-                            (df['Población Total'] >= min_poblacion_1) & (df['Población Total'] <= max_poblacion_1)]
+                                (df['Población Total'] >= min_poblacion_1) & (df['Población Total'] <= max_poblacion_1)]
 
     eje_x_grafico_1 = st.selectbox('Selecciona la variable para el eje X del gráfico 1', df.columns[2:])
     eje_y_grafico_1 = 'Población Total'
@@ -100,21 +100,21 @@ if mostrar_graficos:
         st.pyplot(plt)
         plt.close()
 
-# Gráfico 2: Relación entre Área y Población
+    # Gráfico 2: Relación entre Área y Población
     st.subheader('Gráfico 2: Relación entre Área y Población')
 
     min_area_2, max_area_2 = st.slider('Selecciona el rango de área en km² para el gráfico 2',
-                                     min_value=int(df['Área en km²'].min()),
-                                     max_value=int(df['Área en km²'].max()),
-                                     value=(0, int(df['Área en km²'].max())))
+                                         min_value=int(df['Área en km²'].min()),
+                                         max_value=int(df['Área en km²'].max()),
+                                         value=(0, int(df['Área en km²'].max())))
 
     min_poblacion_2, max_poblacion_2 = st.slider('Selecciona el rango de población total para el gráfico 2',
-                                               min_value=int(df['Población Total'].min()),
-                                               max_value=int(df['Población Total'].max()),
-                                               value=(0, int(df['Población Total'].max())))
+                                                   min_value=int(df['Población Total'].min()),
+                                                   max_value=int(df['Población Total'].max()),
+                                                   value=(0, int(df['Población Total'].max())))
 
     df_filtrado_grafico_2 = df[(df['Área en km²'] >= min_area_2) & (df['Área en km²'] <= max_area_2) &
-                            (df['Población Total'] >= min_poblacion_2) & (df['Población Total'] <= max_poblacion_2)]
+                                (df['Población Total'] >= min_poblacion_2) & (df['Población Total'] <= max_poblacion_2)]
 
     eje_x_grafico_2 = st.selectbox('Selecciona la variable para el eje X del gráfico 2', df.columns[2:])
     eje_y_grafico_2 = 'Población Total'
