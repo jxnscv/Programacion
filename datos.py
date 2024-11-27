@@ -101,8 +101,8 @@ if mostrar_graficos:
         st.pyplot(plt)
         plt.close()
     with st.expander('Mostrar Mapa Interactivo'):
-    st.subheader('Mapa Interactivo de Países')
-    mapa = folium.Map(location=[20, 0], zoom_start=2)
+        st.subheader('Mapa Interactivo de Países')
+        mapa = folium.Map(location=[20, 0], zoom_start=2)
 
     for i in range(len(df_filtrado_graficos)):
         popup_info = (
