@@ -120,10 +120,6 @@ if mostrar_graficos:
             popup=popup_info,
             icon=folium.Icon(color='blue')
         ).add_to(mapa)
-
-
-    
-    # Mostrar el mapa en la aplicación Streamlit
-    st_folium(mapa, width=700, height=500)
+        st_folium(mapa, width=700, height=500)
 
 
