@@ -100,8 +100,7 @@ if mostrar_graficos:
         plt.ylabel('Población Total', fontsize=12)
         st.pyplot(plt)
         plt.close()
-
-with st.expander('Mostrar Mapa Interactivo'):
+    with st.expander('Mostrar Mapa Interactivo'):
     st.subheader('Mapa Interactivo de Países')
     mapa = folium.Map(location=[20, 0], zoom_start=2)
 
@@ -124,3 +123,5 @@ with st.expander('Mostrar Mapa Interactivo'):
 
     # Mostrar el mapa en la aplicación Streamlit
     st_folium(mapa, width=700, height=500)
+
+
