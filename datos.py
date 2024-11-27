@@ -67,6 +67,7 @@ if st.button('Descargar datos filtrados'):
 
 st.subheader('Gráficos de Análisis')
 
+# Checkbox para mostrar gráficos
 mostrar_graficos = st.checkbox('Mostrar gráficos')
 if mostrar_graficos:
     min_area, max_area = st.slider('Selecciona el rango de área en km²',
@@ -82,41 +83,52 @@ if mostrar_graficos:
     df_filtrado_graficos = df[(df['Área en km²'] >= min_area) & (df['Área en km²'] <= max_area) &
                                (df['Población Total'] >= min_poblacion) & (df['Población Total'] <= max_poblacion)]
 
-    plt.figure(figsize=(10, 5))
-    df_filtrado_graficos.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
-    plt.title('Población Total por Región', fontsize=16)
-    plt.xlabel('Región Geográfica', fontsize=12)
-    plt.ylabel('Población Total', fontsize=12)
-    plt.xticks(rotation=45)
-    plt.grid(axis='y')
-    st.pyplot(plt)
-    plt.close()
+    # Expander para gráficos
+    with st.expander('Mostrar Gráficos'):
+        # Gráfico de barras
+        plt.figure(figsize=(10, 5))
+        df_filtrado_graficos.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
+        plt.title('Población Total por Región', fontsize=16)
+        plt.xlabel('Región Geográfica', fontsize=12)
+        plt.ylabel('Población Total', fontsize=12)
+        plt.xticks(rotation=45)
+        plt.grid(axis='y')
+        st.pyplot(plt)
+        plt.close()
 
-    plt.figure(figsize=(10, 5))
-    plt.scatter(df_filtrado_graficos['Área en km²'], df_filtrado_graficos['Población Total'], color='blue', alpha=0.5)
-    plt.title('Relación entre Área y Población', fontsize=16)
-    plt.xlabel('Área en km²', fontsize=12)
-    plt.ylabel('Población Total', fontsize=12)
-    st.pyplot(plt)
-    plt.close()
+        # Gráfico de dispersión
+        plt.figure(figsize=(10, 5))
+        plt.scatter(df_filtrado_graficos['Área en km²'], df_filtrado_graficos['Población Total'], color='blue', alpha=0.5)
+        plt.title('Relación entre Área y Población', fontsize=16)
+        plt.xlabel('Área en km²', fontsize=12)
+        plt.ylabel('Población Total', fontsize=12)
+        st.pyplot(plt)
+        plt.close()
 
-    # Mapa interactivo
-st.subheader('Mapa Interactivo de Países')
-mapa = folium.Map(location=[20, 0], zoom_start=2)
+    # Expander para el mapa
+    with st.expander('Mostrar Mapa Interactivo'):
+        st.subheader('Mapa Interactivo de Países')
+        mapa = folium.Map(location=[20, 0], zoom_start=2)
 
-for i in range(len(df_filtrado_graficos)):
-    # Crear un string con la información que deseas mostrar
-    popup_info = (
-        f"<strong>Nombre Común:</strong> {df_filtrado_graficos.iloc[i]['Nombre Común']}<br>"
-        f"<strong>Región Geográfica:</strong> {df_filtrado_graficos.iloc[i]['Región Geográfica']}<br>"
-        f"<strong>Población Total:</strong> {df_filtrado_graficos.iloc[i]['Población Total']}<br>"
-        f"<strong>Área en km²:</strong> {df_filtrado_graficos.iloc[i]['Área en km²']}<br>"
-        f"<strong>Número de Fronteras:</strong> {df_filtrado_graficos.iloc[i]['Número de Fronteras']}<br>"
-        f"<strong>Número de Idiomas Oficiales:</strong> {df_filtrado_graficos.iloc[i]['Número de Idiomas Oficiales']}<br>"
-        f"<strong>Número de Zonas Horarias:</strong> {df_filtrado_graficos.iloc[i]['Número de Zonas Horarias']}<br>"
-    )
-    
-    folium.Marker(
+        for i in range(len(df_filtrado_graficos)):
+            # Crear un string con la información que deseas mostrar
+            popup_info = (
+                f"<strong>Nombre Común:</strong> {df_filtrado_graficos.iloc[i]['Nombre Común']}<br>"
+                f"<strong>Región Geográfica:</strong> {df_filtrado_graficos.iloc[i]['Región Geográfica']}<br>"
+                f"<strong>Población Total:</strong> {df_filtrado_graficos.iloc[i]['Población Total']}<br>"
+                f"<strong>Área en km²:</strong> {df_filtrado_graficos.iloc[i]['Área en km²']}<br>"
+                f"<strong>Número de Fronteras:</strong> {df_filtrado_graficos.iloc[i]['Número de Fronteras']}<br>"
+                f"<strong>Número de Idiomas Oficiales:</strong> {df_filtrado_graficos.iloc[i]['Número de Idiomas Oficiales']}<br>"
+                f"<strong>Número de Zonas Horarias:</strong> {df_filtrado_graficos.iloc[i]['Número de Zonas Horarias']}<br>"
+            )
+            
+            folium.Marker(
+                location=[df_filtrado_graficos.iloc[i]['Latitud'], df_filtrado_graficos.iloc[i]['Longitud']],
+                popup=popup_info,
+                icon=folium.Icon(color='blue')
+            ).add_to(mapa)
+
+        st_folium(mapa, width=700, height=500)
         location=[df_filtrado_graficos.iloc[i]['Latitud'], df_filtrado_graficos.iloc[i]['Longitud']],
         popup=popup_info,
         icon=folium.Icon(color='blue')
