@@ -77,25 +77,33 @@ st.subheader('Gráficos de Análisis')
 mostrar_graficos = st.checkbox('Mostrar Gráficos')
 if mostrar_graficos:
     # Gráfico 1: Población Total por Región
-    st.subheader('Gráfico 1: Población Total por Región')
-    plt.figure(figsize=(10, 5))
-    df.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
-    plt.title('Población Total por Región', fontsize=16)
-    plt.xlabel('Región Geográfica', fontsize=12)
-    plt.ylabel('Población Total', fontsize=12)
-    plt.xticks(rotation=45)
-    st.pyplot(plt)
-    plt.close()
+    st.subheader('Gráfico 1: Personalización')
+    eje_x_grafico_1 = st.selectbox('Selecciona la variable para el eje X del gráfico 1', df.columns[2:])
+    eje_y_grafico_1 = st.selectbox('Selecciona la variable para el eje Y del gráfico 1', ['Población Total', 'Área en km²'])
 
-    # Gráfico 2: Relación entre Área y Población
-    st.subheader('Gráfico 2: Relación entre Área y Población')
-    plt.figure(figsize=(10, 5))
-    plt.scatter(df['Área en km²'], df['Población Total'], color='blue', alpha=0.5)
-    plt.title('Relación entre Área y Población', fontsize=16)
-    plt.xlabel('Área en km²', fontsize=12)
-    plt.ylabel('Población Total', fontsize=12)
-    st.pyplot(plt)
-    plt.close()
+    if eje_x_grafico_1 and eje_y_grafico_1:
+        plt.figure(figsize=(10, 5))
+        df.groupby(eje_x_grafico_1)[eje_y_grafico_1].sum().plot(kind='bar', color='lightcoral')
+        plt.title(f'{eje_y_grafico_1} por {eje_x_grafico_1}', fontsize=16)
+        plt.xlabel(eje_x_grafico_1, fontsize=12)
+        plt.ylabel(eje_y_grafico_1, fontsize=12)
+        plt.xticks(rotation=45)
+        st.pyplot(plt)
+        plt.close()
+
+    # Gráfico 2: Relación entre dos variables
+    st.subheader('Gráfico 2: Relación Personalizada')
+    eje_x_grafico_2 = st.selectbox('Selecciona la variable para el eje X del gráfico 2', df.columns[2:])
+    eje_y_grafico_2 = st.selectbox('Selecciona la variable para el eje Y del gráfico 2', ['Población Total', 'Área en km²'])
+
+    if eje_x_grafico_2 and eje_y_grafico_2:
+        plt.figure(figsize=(10, 5))
+        plt.scatter(df[eje_x_grafico_2], df[eje_y_grafico_2], color='blue', alpha=0.5)
+        plt.title(f'Relación entre {eje_x_grafico_2} y {eje_y_grafico_2}', fontsize=16)
+        plt.xlabel(eje_x_grafico_2, fontsize=12)
+        plt.ylabel(eje_y_grafico_2, fontsize=12)
+        st.pyplot(plt)
+        plt.close()
 
     # Mapa interactivo
     st.subheader('Mapa Interactivo')
