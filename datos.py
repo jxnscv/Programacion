@@ -90,4 +90,9 @@ if mostrar_graficos:
     st.pyplot(plt)
     
     plt.figure(figsize=(10, 5))
-    plt.scatter(df['Área en km²'], df['Población Total'], alpha=0.7, c='blue
+    plt.scatter(df['Área en km²'], df['Población Total'], alpha=0.7, c='blue')
+    plt.title('Área vs Población Total', fontsize=16)
+    plt.xlabel('Área en km²', fontsize=12)
+    plt.ylabel('Población Total', fontsize=12)
+    plt.grid()
+    st.pyplot(plt)
