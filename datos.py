@@ -117,6 +117,20 @@ if mostrar_graficos:
     st.pyplot(plt)
 
     plt.close()
-    # Gráfico de barras de la población total por región
+  # Gráfico de dispersión entre área y población
+
     plt.figure(figsize=(10, 5))
-    df_filtrado_graficos.groupby('Región Geográfica')['Población Total'].sum
+
+    plt.scatter(df_filtrado_graficos['Área en km²'], df_filtrado_graficos['Población Total'], color='blue', alpha=0.5)
+
+    plt.title('Relación entre Área y Población', fontsize=16)
+
+    plt.xlabel('Área en km²', fontsize=12)
+
+    plt.ylabel('Población Total', fontsize=12)
+
+    plt.grid()
+
+    st.pyplot(plt)
+
+    plt.close()
