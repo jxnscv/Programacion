@@ -73,51 +73,71 @@ if st.button('Descargar datos filtrados'):
     st.download_button('Descargar CSV', csv, 'datos_filtrados.csv', 'text/csv')
 
 # Gráficos de análisis
-st.subheader('Gráficos de Análisis')
-mostrar_graficos = st.checkbox('Mostrar Gráficos')
-if mostrar_graficos:
-    # Gráfico 1: Población Total por Región
-    st.subheader('Gráfico 1: Personalización')
-    eje_x_grafico_1 = st.selectbox('Selecciona la variable para el eje X del gráfico 1', df.columns[2:])
-    eje_y_grafico_1 = st.selectbox('Selecciona la variable para el eje Y del gráfico 1', ['Población Total', 'Área en km²'])
+st.subheader('Gráfico Personalizado')
 
-    if eje_x_grafico_1 and eje_y_grafico_1:
-        plt.figure(figsize=(10, 5))
-        df.groupby(eje_x_grafico_1)[eje_y_grafico_1].sum().plot(kind='bar', color='lightcoral')
-        plt.title(f'{eje_y_grafico_1} por {eje_x_grafico_1}', fontsize=16)
-        plt.xlabel(eje_x_grafico_1, fontsize=12)
-        plt.ylabel(eje_y_grafico_1, fontsize=12)
-        plt.xticks(rotation=45)
-        st.pyplot(plt)
-        plt.close()
+# Selección del tipo de gráfico
+tipo_grafico = st.selectbox('Selecciona el tipo de gráfico', ['Barras', 'Líneas', 'Dispersión'])
 
-    # Gráfico 2: Relación entre dos variables
-    st.subheader('Gráfico 2: Relación Personalizada')
-    eje_x_grafico_2 = st.selectbox('Selecciona la variable para el eje X del gráfico 2', df.columns[2:])
-    eje_y_grafico_2 = st.selectbox('Selecciona la variable para el eje Y del gráfico 2', ['Población Total', 'Área en km²'])
+# Selección de ejes
+eje_x = st.selectbox('Selecciona la variable para el eje X', df.columns[2:], key='grafico_x')
+eje_y = st.selectbox('Selecciona la variable para el eje Y', df.columns[2:], key='grafico_y')
 
-    if eje_x_grafico_2 and eje_y_grafico_2:
-        plt.figure(figsize=(10, 5))
-        plt.scatter(df[eje_x_grafico_2], df[eje_y_grafico_2], color='blue', alpha=0.5)
-        plt.title(f'Relación entre {eje_x_grafico_2} y {eje_y_grafico_2}', fontsize=16)
-        plt.xlabel(eje_x_grafico_2, fontsize=12)
-        plt.ylabel(eje_y_grafico_2, fontsize=12)
-        st.pyplot(plt)
-        plt.close()
+# Rango para los ejes
+if eje_x and eje_y:
+    min_x, max_x = st.slider(f'Selecciona el rango para {eje_x}', 
+                             float(df[eje_x].min()), 
+                             float(df[eje_x].max()), 
+                             (float(df[eje_x].min()), float(df[eje_x].max())), key='rango_x')
+    
+    min_y, max_y = st.slider(f'Selecciona el rango para {eje_y}', 
+                             float(df[eje_y].min()), 
+                             float(df[eje_y].max()), 
+                             (float(df[eje_y].min()), float(df[eje_y].max())), key='rango_y')
+    
+    # Filtrar los datos según el rango seleccionado
+    df_filtrado = df[(df[eje_x] >= min_x) & (df[eje_x] <= max_x) &
+                     (df[eje_y] >= min_y) & (df[eje_y] <= max_y)]
+    
+    # Creación del gráfico
+    plt.figure(figsize=(10, 5))
+    if tipo_grafico == 'Barras':
+        df_filtrado.groupby(eje_x)[eje_y].sum().plot(kind='bar', color='lightcoral')
+    elif tipo_grafico == 'Líneas':
+        plt.plot(df_filtrado[eje_x], df_filtrado[eje_y], color='blue', alpha=0.7)
+    elif tipo_grafico == 'Dispersión':
+        plt.scatter(df_filtrado[eje_x], df_filtrado[eje_y], color='green', alpha=0.5)
+    
+    # Personalización del gráfico
+    plt.title(f'{eje_y} vs {eje_x}', fontsize=16)
+    plt.xlabel(eje_x, fontsize=12)
+    plt.ylabel(eje_y, fontsize=12)
+    plt.xticks(rotation=45)
+    st.pyplot(plt)
+    plt.close()
 
-    # Mapa interactivo
-    st.subheader('Mapa Interactivo')
-    mapa = folium.Map(location=[20, 0], zoom_start=2)
-    for _, row in df.iterrows():
-        popup_info = (
-            f"<strong>Nombre Común:</strong> {row['Nombre Común']}<br>"
-            f"<strong>Región Geográfica:</strong> {row['Región Geográfica']}<br>"
-            f"<strong>Población Total:</strong> {row['Población Total']}<br>"
-            f"<strong>Área en km²:</strong> {row['Área en km²']}<br>"
-        )
-        folium.Marker(
-            location=[row['Latitud'], row['Longitud']],
-            popup=popup_info,
-            icon=folium.Icon(color='blue')
-        ).add_to(mapa)
-    st_folium(mapa, width=700, height=500)
+# Mapa interactivo
+st.subheader('Mapa Interactivo')
+min_poblacion_mapa, max_poblacion_mapa = st.slider(
+    'Selecciona el rango de población para mostrar en el mapa',
+    int(df['Población Total'].min()), 
+    int(df['Población Total'].max()), 
+    (int(df['Población Total'].min()), int(df['Población Total'].max()))
+)
+
+df_filtrado_mapa = df[(df['Población Total'] >= min_poblacion_mapa) & 
+                      (df['Población Total'] <= max_poblacion_mapa)]
+
+mapa = folium.Map(location=[20, 0], zoom_start=2)
+for _, row in df_filtrado_mapa.iterrows():
+    popup_info = (
+        f"<strong>Nombre Común:</strong> {row['Nombre Común']}<br>"
+        f"<strong>Región Geográfica:</strong> {row['Región Geográfica']}<br>"
+        f"<strong>Población Total:</strong> {row['Población Total']}<br>"
+        f"<strong>Área en km²:</strong> {row['Área en km²']}<br>"
+    )
+    folium.Marker(
+        location=[row['Latitud'], row['Longitud']],
+        popup=popup_info,
+        icon=folium.Icon(color='blue')
+    ).add_to(mapa)
+st_folium(mapa, width=700, height=500)
