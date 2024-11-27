@@ -88,7 +88,7 @@ if mostrar_graficos:
     plt.xlabel('Región Geográfica', fontsize=12)
     plt.ylabel('Población Total', fontsize=12)
     plt.xticks(rotation=45)
-        plt.grid(axis='y')
+    plt.grid(axis='y')
     st.pyplot(plt)
     plt.close()
 
