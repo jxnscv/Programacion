@@ -128,9 +128,4 @@ with st.expander('Mostrar Mapa Interactivo'):
         ).add_to(mapa)
 
     # Mostrar el mapa en la aplicación Streamlit
-    st_folium(mapa, width=700, height=500)Común:</strong> {df_filtrado_graficos.iloc[i]['Nombre Común']}<br>"
-            f"<strong>Región Geográfica:</strong> {df_filtrado_graficos.iloc[i]['Región Geográfica']}<br>"
-            f"<strong>Población Total:</strong> {df_filtrado_graficos.iloc[i]['Población Total']}<br>"
-            f"<strong>Área en km²:</strong> {df_filtrado_graficos.iloc[i]['Área en km²']}<br>"
-            f"<strong>Número de Fronteras:</strong> {df_filtrado_graficos.iloc[i]['Número de Fronteras']}<br>"
-            f"<strong>Número de Idiomas Oficiales:</strong> {df_fil
+    st_folium(mapa, width=700, height=500)
