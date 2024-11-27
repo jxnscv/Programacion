@@ -3,29 +3,16 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import io
-import time
 
 def obtener_datos_paises():
     url = 'https://restcountries.com/v3.1/all'
-    intentos = 5  # Número de intentos
-    for intento in range(intentos):
-        try:
-            respuesta = requests.get(url)
-            respuesta.raise_for_status()  # Lanza un error si la respuesta no es 200
-            return respuesta.json()
-        except requests.exceptions.HTTPError as http_err:
-            st.error(f"Error HTTP: {http_err}")
-            break  # Salir si hay un error HTTP
-        except requests.exceptions.ConnectionError as conn_err:
-            st.warning(f"Error de conexión: {conn_err}. Intentando de nuevo...")
-            time.sleep(2)  # Esperar 2 segundos antes de reintentar
-        except requests.exceptions.Timeout:
-            st.error("La solicitud ha tardado demasiado tiempo en responder.")
-            break
-        except requests.exceptions.RequestException as req_err:
-            st.error(f"Error inesperado: {req_err}")
-            break
-    return None  # Devuelve None si hay un error
+    try:
+        respuesta = requests.get(url, timeout=10)  # Establecer un tiempo de espera
+        respuesta.raise_for_status()  # Lanza un error si la respuesta no es 200
+        return respuesta.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error al obtener datos: {e}")
+        return None  # Devuelve None si hay un error
 
 def convertir_a_dataframe(paises):
     datos = []
@@ -56,10 +43,6 @@ if paises is not None:
         st.write("""
         Esta aplicación web utiliza datos de la API [REST Countries](https://restcountries.com/v3.1/all).
         Permite explorar información sobre países, incluyendo su población, área, idiomas, fronteras y más.
-        La aplicación está dividida en tres secciones principales:
-        - **Descripción**: Información sobre el proyecto y la fuente de datos.
-        - **Interacción con Datos**: Visualiza y filtra los datos obtenidos.
-        - **Gráficos Interactivos**: Crea gráficos dinámicos basados en los datos.
         """)
 
     elif pagina == "Interacción con Datos":
@@ -69,23 +52,15 @@ if paises is not None:
             st.dataframe(df)
 
         st.subheader("Estadísticas")
-        columna_estadisticas = st.selectbox("Selecciona una columna numérica para calcular estadísticas", ["Población Total", "Área en km²"])
+        columna_estadisticas = st.selectbox("Selecciona una columna numérica", df.columns[2:])  # Solo columnas numéricas
         if columna_estadisticas:
             st.write(f"**Media**: {df[columna_estadisticas].mean():,.2f}")
             st.write(f"**Mediana**: {df[columna_estadisticas].median():,.2f}")
             st.write(f"**Desviación Estándar**: {df[columna_estadisticas].std():,.2f}")
 
-        st.subheader("Ordenar Datos")
-        columna_ordenar = st.selectbox("Selecciona una columna para ordenar", df.columns)
-        orden = st.radio("Orden", ["Ascendente", "Descendente"])
-        if columna_ordenar:
-            df_ordenado = df.sort_values(by=columna_ordenar, ascending=(orden == "Ascendente"))
-            st.dataframe(df_ordenado)
-
         st.subheader("Filtrar por Población")
         valor_filtro = st.slider("Selecciona un valor para filtrar la población total", 0, int(df["Población Total"].max()), 100000)
-        rango_min, rango_max = st.slider("Selecciona un rango de población", int(df["Población Total"].min()), int(df["Población Total"].max()), (0, int(df["Población Total"].max())))
-        df_filtrado = df[(df["Población Total"] >= rango_min) & (df["Población Total"] <= rango_max)]
+        df_filtrado = df[df["Población Total"] >= valor_filtro]
         st.dataframe(df_filtrado)
 
         if st.button('Descargar datos filtrados'):
@@ -94,9 +69,8 @@ if paises is not None:
 
     elif pagina == "Gráficos Interactivos":
         st.title("Gráficos Interactivos")
-        st.subheader("Configurar Gráfico")
-        x_var = st.selectbox("Eje X", ["Población Total", "Área en km²", "Número de Fronteras", "Número de Idiomas Oficiales", "Número de Zonas Horarias"])
-        y_var = st.selectbox("Eje Y", ["Población Total", "Área en km²", "Número de Fronteras", "Número de Idiomas Oficiales", "Número de Zonas Horarias"])
+        x_var = st.selectbox("Eje X", df.columns[2:])  # Solo columnas numéricas
+        y_var = st.selectbox("Eje Y", df.columns[2:])  # Solo columnas numéricas
         tipo_grafico = st.selectbox("Tipo de Gráfico", ["Dispersión", "Línea", "Barras"])
 
         fig, ax = plt.subplots()
@@ -106,11 +80,10 @@ if paises is not None:
             ax.plot(df[x_var], df[y_var], marker='o')
         elif tipo_grafico == "Barras":
             ax.bar(df[x_var], df[y_var])
-
-        ax.set_xlabel(x_var)
-        ax.set_ylabel(y_var)
-        ax.set_title(f"{tipo_grafico} entre {x_var} y {y_var}")
-        st.pyplot(fig)
+            ax.set_xlabel(x_var)
+            ax.set_ylabel(y_var)
+            ax.set_title(f"{tipo_grafico} entre {x_var} y {y_var}")
+            st.pyplot(fig)
 
         buffer = io.BytesIO()
         fig.savefig(buffer, format="png")
