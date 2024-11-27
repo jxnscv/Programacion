@@ -70,37 +70,63 @@ st.subheader('Gráficos de Análisis')
 
 mostrar_graficos = st.checkbox('Mostrar Gráficos')
 if mostrar_graficos:
-    min_area, max_area = st.slider('Selecciona el rango de área en km²',
+# Gráfico 1: Población Total por Región
+st.subheader('Gráfico 1: Población Total por Región')
+
+min_area_1, max_area_1 = st.slider('Selecciona el rango de área en km² para el gráfico 1',
                                      min_value=int(df['Área en km²'].min()),
                                      max_value=int(df['Área en km²'].max()),
                                      value=(0, int(df['Área en km²'].max())))
 
-    min_poblacion, max_poblacion = st.slider('Selecciona el rango de población total',
+min_poblacion_1, max_poblacion_1 = st.slider('Selecciona el rango de población total para el gráfico 1',
                                                min_value=int(df['Población Total'].min()),
                                                max_value=int(df['Población Total'].max()),
                                                value=(0, int(df['Población Total'].max())))
 
-    df_filtrado_graficos = df[(df['Área en km²'] >= min_area) & (df['Área en km²'] <= max_area) &
-                               (df['Población Total'] >= min_poblacion) & (df['Población Total'] <= max_poblacion)]
+df_filtrado_grafico_1 = df[(df['Área en km²'] >= min_area_1) & (df['Área en km²'] <= max_area_1) &
+                            (df['Población Total'] >= min_poblacion_1) & (df['Población Total'] <= max_poblacion_1)]
 
-    with st.expander('Mostrar Gráficos'):
-        plt.figure(figsize=(10, 5))
-        df_filtrado_graficos.groupby('Región Geográfica')['Población Total'].sum().plot(kind='bar', color='lightcoral')
-        plt.title('Población Total por Región', fontsize=16)
-        plt.xlabel('Región Geográfica', fontsize=12)
-        plt.ylabel('Población Total', fontsize=12)
-        plt.xticks(rotation=45)
-        plt.grid(axis='y')
-        st.pyplot(plt)
-        plt.close()
+eje_x_grafico_1 = st.selectbox('Selecciona la variable para el eje X del gráfico 1', df.columns[2:])
+eje_y_grafico_1 = 'Población Total'
 
-        plt.figure(figsize=(10, 5))
-        plt.scatter(df_filtrado_graficos['Área en km²'], df_filtrado_graficos['Población Total'], color='blue', alpha=0.5)
-        plt.title('Relación entre Área y Población', fontsize=16)
-        plt.xlabel('Área en km²', fontsize=12)
-        plt.ylabel('Población Total', fontsize=12)
-        st.pyplot(plt)
-        plt.close()
+with st.expander('Mostrar Gráfico 1'):
+    plt.figure(figsize=(10, 5))
+    df_filtrado_grafico_1.groupby('Región Geográfica')[eje_y_grafico_1].sum().plot(kind='bar', color='lightcoral')
+    plt.title('Población Total por Región', fontsize=16)
+    plt.xlabel('Región Geográfica', fontsize=12)
+    plt.ylabel(eje_y_grafico_1, fontsize=12)
+    plt.xticks(rotation=45)
+    plt.grid(axis='y')
+    st.pyplot(plt)
+    plt.close()
+
+# Gráfico 2: Relación entre Área y Población
+st.subheader('Gráfico 2: Relación entre Área y Población')
+
+min_area_2, max_area_2 = st.slider('Selecciona el rango de área en km² para el gráfico 2',
+                                     min_value=int(df['Área en km²'].min()),
+                                     max_value=int(df['Área en km²'].max()),
+                                     value=(0, int(df['Área en km²'].max())))
+
+min_poblacion_2, max_poblacion_2 = st.slider('Selecciona el rango de población total para el gráfico 2',
+                                               min_value=int(df['Población Total'].min()),
+                                               max_value=int(df['Población Total'].max()),
+                                               value=(0, int(df['Población Total'].max())))
+
+df_filtrado_grafico_2 = df[(df['Área en km²'] >= min_area_2) & (df['Área en km²'] <= max_area_2) &
+                            (df['Población Total'] >= min_poblacion_2) & (df['Población Total'] <= max_poblacion_2)]
+
+eje_x_grafico_2 = st.selectbox('Selecciona la variable para el eje X del gráfico 2', df.columns[2:])
+eje_y_grafico_2 = 'Población Total'
+
+with st.expander('Mostrar Gráfico 2'):
+    plt.figure(figsize=(10, 5))
+    plt.scatter(df_filtrado_grafico_2[eje_x_grafico_2], df_filtrado_grafico_2[eje_y_grafico_2], color='blue', alpha=0.5)
+    plt.title('Relación entre Área y Población', fontsize=16)
+    plt.xlabel(eje_x_grafico_2, fontsize=12)
+    plt.ylabel(eje_y_grafico_2, fontsize=12)
+    st.pyplot(plt)
+    plt.close()
     with st.expander('Mostrar Mapa Interactivo'):
         st.subheader('Mapa Interactivo de Países')
         mapa = folium.Map(location=[20, 0], zoom_start=2)
