@@ -34,6 +34,7 @@ paises = obtener_datos_paises()
 df = convertir_a_dataframe(paises)
 
 st.title('Análisis de Datos de Países')
+st.write('Este proyecto analiza diversos datos sobre países, incluyendo población, área, fronteras, idiomas y zonas horarias.')
 
 if st.checkbox('Mostrar datos originales'):
     st.write(df)
