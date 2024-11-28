@@ -66,6 +66,33 @@ elif st.session_state.pagina == 2:
     st.write('Datos filtrados:')
     st.write(df_filtrado)
 
+    # Botón para mostrar datos originales
+    if st.button('Mostrar datos originales'):
+        st.write(df)
+
+    # Estadísticas de columnas seleccionadas
+    st.write('### Estadísticas Descriptivas')
+    columna_estadisticas = st.selectbox('Selecciona una columna para estadísticas', df.columns[2:])
+    if columna_estadisticas:
+        media = df[columna_estadisticas].mean()
+        mediana = df[columna_estadisticas].median()
+        desviacion_estandar = df[columna_estadisticas].std()
+        st.write(f'Media: {media}')
+        st.write(f'Mediana: {mediana}')
+        st.write(f'Desviación Estándar: {desviacion_estandar}')
+
+    # Ordenar la tabla
+    columna_ordenar = st.selectbox('Selecciona una columna para ordenar', df.columns[2:])
+    orden_ascendente = st.radio('Ordenar en:', ['Ascendente', 'Descendente'])
+
+    if columna_ordenar:
+        if orden_ascendente == 'Ascendente':
+            df_filtrado = df_filtrado.sort_values(by=columna_ordenar, ascending=True)
+        else:
+            df_filtrado = df_filtrado.sort_values(by=columna_ordenar, ascending=False)
+
+    st.write(df_filtrado)
+
     if st.button('Descargar datos filtrados'):
         csv = df_filtrado.to_csv(index=False)
         st.download_button(
@@ -74,17 +101,6 @@ elif st.session_state.pagina == 2:
             file_name='datos_filtrados.csv',
             mime='text/csv'
         )
-
-        # Estadísticas de columnas seleccionadas
-        st.write('### Estadísticas Descriptivas')
-        columna_estadisticas = st.selectbox('Selecciona una columna para estadísticas', df.columns[2:])
-        if columna_estadisticas:
-            media = df[columna_estadisticas].mean()
-            mediana = df[columna_estadisticas].median()
-            desviacion_estandar = df[columna_estadisticas].std()
-            st.write(f'Media: {media}')
-            st.write(f'Mediana: {mediana}')
-            st.write(f'Desviación Estándar: {desviacion_estandar}')
 
     col1, col2 = st.columns(2)
     with col1:
