@@ -2,13 +2,13 @@ import requests
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-import io
 import folium
-from folium.plugins import MarkerCluster
+from streamlit_folium import st_folium
+import io
 
-# Función para obtener los datos de países desde la API REST Countries
+# Función para obtener datos de países
 def obtener_datos_paises():
-    url = 'https://restcountries.com/v3.1/all'
+    url = 'https://raw.githubusercontent.com/jxnscv/Programacion/main/all.json' #aquí deberia ir "https://restcountries.com/v3.1/all" si no diera error.
     respuesta = requests.get(url)
     if respuesta.status_code == 200:
         return respuesta.json()
@@ -16,7 +16,7 @@ def obtener_datos_paises():
         st.error(f'Error: {respuesta.status_code}')
         return []
 
-# Función para convertir los datos de los países a un dataframe
+# Función para convertir los datos a DataFrame
 def convertir_a_dataframe(paises):
     datos = []
     for pais in paises:
@@ -28,37 +28,36 @@ def convertir_a_dataframe(paises):
             'Número de Fronteras': len(pais.get('borders', [])),
             'Número de Idiomas Oficiales': len(pais.get('languages', {})),
             'Número de Zonas Horarias': len(pais.get('timezones', [])),
-            'Latitud': pais.get('latlng', [None, None])[0],  # Latitud
-            'Longitud': pais.get('latlng', [None, None])[1]  # Longitud
+            'Latitud': pais.get('latlng', [None, None])[0],
+            'Longitud': pais.get('latlng', [None, None])[1]
         })
     return pd.DataFrame(datos)
 
-# Obtener y convertir los datos de los países
+# Obtener los datos
 paises = obtener_datos_paises()
 df = convertir_a_dataframe(paises)
 
+# Configuración de la interfaz de Streamlit
 st.title('Análisis de Datos de Países')
 
-# Barra lateral para navegar entre las páginas
 st.sidebar.title("Navegación")
-pagina = st.sidebar.radio("Selecciona una página", ["Descripción", "Interacción con Datos", "Gráficos Interactivos", "Mapa de Países"])
+pagina = st.sidebar.radio("Selecciona una página", ["Descripción", "Interacción con Datos", "Gráficos Interactivos", "Mapa Interactivo"])
 
 if pagina == "Descripción":
     st.title("Descripción del Proyecto")
     st.write("""
     Esta aplicación web utiliza datos de la API [REST Countries](https://restcountries.com/v3.1/all).
     Permite explorar información sobre países, incluyendo su población, área, idiomas, fronteras y más.
-    La aplicación está dividida en tres secciones principales:
+    La aplicación está dividida en cuatro secciones principales:
     - **Descripción**: Información sobre el proyecto y la fuente de datos.
     - **Interacción con Datos**: Visualiza y filtra los datos obtenidos.
     - **Gráficos Interactivos**: Crea gráficos dinámicos basados en los datos.
-    - **Mapa de Países**: Visualiza los países en un mapa interactivo con sus coordenadas geográficas.
+    - **Mapa Interactivo**: Visualiza los países en un mapa interactivo.
     """)
 
 elif pagina == "Interacción con Datos":
     st.title("Interacción con Datos")
     st.subheader("Datos Originales")
-    
     if st.checkbox('Mostrar datos originales'):
         st.dataframe(df)
 
@@ -77,10 +76,8 @@ elif pagina == "Interacción con Datos":
         st.dataframe(df_ordenado)
 
     st.subheader("Filtrar por Población")
-    rango_min, rango_max = st.slider("Selecciona un rango de población", 
-                                     int(df["Población Total"].min()), 
-                                     int(df["Población Total"].max()), 
-                                     (int(df["Población Total"].min()), int(df["Población Total"].max())))
+    valor_filtro = st.slider("Selecciona un valor para filtrar la población total", 0, int(df["Población Total"].max()), 100000)
+    rango_min, rango_max = st.slider("Selecciona un rango de población", int(df["Población Total"].min()), int(df["Población Total"].max()), (0, int(df["Población Total"].max())))
     df_filtrado = df[(df["Población Total"] >= rango_min) & (df["Población Total"] <= rango_max)]
     st.dataframe(df_filtrado)
 
@@ -113,25 +110,35 @@ elif pagina == "Gráficos Interactivos":
     buffer.seek(0)
     st.download_button("Descargar Gráfico", buffer, file_name="grafico.png")
 
-elif pagina == "Mapa de Países":
+elif pagina == "Mapa Interactivo":
     st.title("Mapa Interactivo de Países")
     
-    # Crear un mapa centrado en el mundo
-    m = folium.Map(location=[20, 0], zoom_start=2)
+    st.write("Aquí puedes ver la ubicación de los países en el mapa según su población.")
+    
+    min_poblacion, max_poblacion = st.slider(
+        "Selecciona un rango de población para mostrar en el mapa",
+        int(df['Población Total'].min()), 
+        int(df['Población Total'].max()), 
+        (int(df['Población Total'].min()), int(df['Población Total'].max()))
+    )
 
-    # Crear un MarkerCluster para agrupar los países en el mapa
-    marker_cluster = MarkerCluster().add_to(m)
+    df_filtrado_mapa = df[(df['Población Total'] >= min_poblacion) & 
+                          (df['Población Total'] <= max_poblacion)]
 
-    # Añadir los marcadores para cada país en el mapa
-    for _, row in df.iterrows():
-        lat, lon = row['Latitud'], row['Longitud']
-        if pd.notnull(lat) and pd.notnull(lon):
+    mapa = folium.Map(location=[20, 0], zoom_start=2)
+    for _, row in df_filtrado_mapa.iterrows():
+        latlng = row.get('Latitud'), row.get('Longitud')
+        if latlng and None not in latlng:  # Solo agregar si existen las coordenadas
+            popup_info = (
+                f"<strong>Nombre Común:</strong> {row['Nombre Común']}<br>"
+                f"<strong>Región Geográfica:</strong> {row['Región Geográfica']}<br>"
+                f"<strong>Población Total:</strong> {row['Población Total']}<br>"
+                f"<strong>Área en km²:</strong> {row['Área en km²']}<br>"
+            )
             folium.Marker(
-                location=[lat, lon],
-                popup=row['Nombre Común'],
+                location=latlng,
+                popup=popup_info,
                 icon=folium.Icon(color='blue')
-            ).add_to(marker_cluster)
-
-    # Mostrar el mapa en Streamlit
-    st.write("Mapa interactivo de países con latitudes y longitudes.")
-    st.map(m)
+            ).add_to(mapa)
+    
+    st_folium(mapa, width=700, height=500)
