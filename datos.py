@@ -44,7 +44,7 @@ if "pagina" not in st.session_state:
 # Página 1: Presentación
 if st.session_state.pagina == 1:
     st.title('Análisis de Datos de Países')
-    st.write('Este proyecto analiza datos globales sobre países en base a los datos obtenidos desde la API restcountries.com.')
+    st.write('Este proyecto analiza datos globales sobre países.')
     st.write('Se incluyen tablas, estadísticas descriptivas, gráficos personalizados y un mapa interactivo.')
 
     col1, col2 = st.columns(2)
@@ -58,17 +58,28 @@ elif st.session_state.pagina == 2:
     st.write('### Información General de los Países')
     st.write(df)
 
-    # Botón para descargar los datos como Excel
+    # Filtrar por población total
+    valor_filtro = st.slider('Selecciona un valor para filtrar la población total', 0, int(df['Población Total'].max()), 100000)
+    df_filtrado = df[df['Población Total'] >= valor_filtro]
+    st.write('Datos filtrados:')
+    st.write(df_filtrado)
+
+    # Botón para descargar los datos como CSV y Excel
     if st.button('Descargar datos filtrados'):
         csv = df_filtrado.to_csv(index=False)
         st.download_button('Descargar CSV', csv, 'datos_filtrados.csv', 'text/csv')
-        excel = df_filtrado.to_excel(index=False, engine='openpyxl')
-        st.download_button('Descargar Excel', excel, 'datos_filtrados.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+        # Convertir a Excel
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df_filtrado.to_excel(writer, index=False, sheet_name='Datos Filtrados')
+            writer.save()
+        data_excel = output.getvalue()
 
         st.download_button(
             label='Descargar datos como Excel',
             data=data_excel,
-            file_name='datos_paises.xlsx',
+            file_name='datos_filtrados.xlsx',
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
 
