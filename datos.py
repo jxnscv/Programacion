@@ -4,6 +4,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import st_folium
+from io import BytesIO
 
 # Función para obtener datos de países
 def obtener_datos_paises():
@@ -36,27 +37,44 @@ def convertir_a_dataframe(paises):
 paises = obtener_datos_paises()
 df = convertir_a_dataframe(paises)
 
-# Configuración de Streamlit
+# Configuración de navegación entre páginas
 if "pagina" not in st.session_state:
     st.session_state.pagina = 1
 
+# Página 1: Presentación
 if st.session_state.pagina == 1:
-    # Página 1: Presentación del Proyecto
     st.title('Análisis de Datos de Países')
-    st.write('Este proyecto analiza datos globales sobre países.')
-    st.write('Aquí se pueden explorar tablas, estadísticas, gráficos y un mapa interactivo.')
-    if st.button('Ir a la siguiente página'):
-        st.session_state.pagina = 2
+    st.write('Este proyecto analiza datos globales sobre países en base a los datos obtenidos desde la API restcountries.com.')
+    st.write('Se incluyen tablas, estadísticas descriptivas, gráficos personalizados y un mapa interactivo.')
 
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button('Ir a la siguiente página'):
+            st.session_state.pagina = 2
+
+# Página 2: Tablas
 elif st.session_state.pagina == 2:
-    # Página 2: Tablas de datos
-    st.title('Tablas de Datos')
-    st.write('### Información General')
-    st.write('Tabla con datos recopilados de cada país.')
+    st.title('Tablas y Estadísticas de Datos')
+    st.write('### Información General de los Países')
     st.write(df)
 
+    # Botón para descargar los datos como Excel
+    st.write('### Descargar Datos')
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Datos')
+        writer.save()
+    data_excel = output.getvalue()
+
+    st.download_button(
+        label='Descargar datos como Excel',
+        data=data_excel,
+        file_name='datos_paises.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
     # Estadísticas de columnas seleccionadas
-    st.write('### Estadísticas')
+    st.write('### Estadísticas Descriptivas')
     columna_estadisticas = st.selectbox('Selecciona una columna para estadísticas', df.columns[2:])
     if columna_estadisticas:
         media = df[columna_estadisticas].mean()
@@ -66,47 +84,90 @@ elif st.session_state.pagina == 2:
         st.write(f'Mediana: {mediana}')
         st.write(f'Desviación Estándar: {desviacion_estandar}')
 
-    if st.button('Ir a la siguiente página'):
-        st.session_state.pagina = 3
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button('Volver a la primera página'):
+            st.session_state.pagina = 1
+    with col2:
+        if st.button('Ir a la siguiente página'):
+            st.session_state.pagina = 3
 
+# Página 3: Gráficos y Mapas
 elif st.session_state.pagina == 3:
-    # Página 3: Gráficos
     st.title('Gráficos y Mapas')
-    st.write('### Visualización de Datos')
+    st.write('### Gráfico Personalizado')
 
     # Selección del tipo de gráfico
     tipo_grafico = st.selectbox('Selecciona el tipo de gráfico', ['Barras', 'Líneas', 'Dispersión'])
 
     # Selección de ejes
-    eje_x = st.selectbox('Eje X', df.columns[2:])
-    eje_y = st.selectbox('Eje Y', df.columns[2:])
+    eje_x = st.selectbox('Selecciona la variable para el eje X', df.columns[2:], key='grafico_x')
+    eje_y = st.selectbox('Selecciona la variable para el eje Y', df.columns[2:], key='grafico_y')
 
-    # Creación del gráfico
+    # Rango para los ejes
     if eje_x and eje_y:
+        min_x, max_x = st.slider(f'Selecciona el rango para {eje_x}', 
+                                 float(df[eje_x].min()), 
+                                 float(df[eje_x].max()), 
+                                 (float(df[eje_x].min()), float(df[eje_x].max())), key='rango_x')
+
+        min_y, max_y = st.slider(f'Selecciona el rango para {eje_y}', 
+                                 float(df[eje_y].min()), 
+                                 float(df[eje_y].max()), 
+                                 (float(df[eje_y].min()), float(df[eje_y].max())), key='rango_y')
+
+        # Filtrar los datos según el rango seleccionado
+        df_filtrado = df[(df[eje_x] >= min_x) & (df[eje_x] <= max_x) &
+                         (df[eje_y] >= min_y) & (df[eje_y] <= max_y)]
+
+        # Creación del gráfico
         plt.figure(figsize=(10, 5))
         if tipo_grafico == 'Barras':
-            df.groupby(eje_x)[eje_y].mean().plot(kind='bar', color='orange')
+            df_filtrado.groupby(eje_x)[eje_y].sum().plot(kind='bar', color='lightcoral')
         elif tipo_grafico == 'Líneas':
-            plt.plot(df[eje_x], df[eje_y], color='green')
+            plt.plot(df_filtrado[eje_x], df_filtrado[eje_y], color='blue', alpha=0.7)
         elif tipo_grafico == 'Dispersión':
-            plt.scatter(df[eje_x], df[eje_y], color='blue', alpha=0.6)
+            plt.scatter(df_filtrado[eje_x], df_filtrado[eje_y], color='green', alpha=0.5)
 
-        plt.title(f'{eje_y} vs {eje_x}')
-        plt.xlabel(eje_x)
-        plt.ylabel(eje_y)
+        # Personalización del gráfico
+        plt.title(f'{eje_y} vs {eje_x}', fontsize=16)
+        plt.xlabel(eje_x, fontsize=12)
+        plt.ylabel(eje_y, fontsize=12)
+        plt.xticks(rotation=45)
         st.pyplot(plt)
+        plt.close()
 
     # Mapa interactivo
     st.write('### Mapa Interactivo')
+    min_poblacion_mapa, max_poblacion_mapa = st.slider(
+        'Selecciona el rango de población para mostrar en el mapa',
+        int(df['Población Total'].min()), 
+        int(df['Población Total'].max()), 
+        (int(df['Población Total'].min()), int(df['Población Total'].max()))
+    )
+
+    df_filtrado_mapa = df[(df['Población Total'] >= min_poblacion_mapa) & 
+                          (df['Población Total'] <= max_poblacion_mapa)]
+
     mapa = folium.Map(location=[20, 0], zoom_start=2)
-    for _, row in df.iterrows():
+    for _, row in df_filtrado_mapa.iterrows():
+        popup_info = (
+            f"<strong>Nombre Común:</strong> {row['Nombre Común']}<br>"
+            f"<strong>Región Geográfica:</strong> {row['Región Geográfica']}<br>"
+            f"<strong>Población Total:</strong> {row['Población Total']}<br>"
+            f"<strong>Área en km²:</strong> {row['Área en km²']}<br>"
+        )
         folium.Marker(
             location=[row['Latitud'], row['Longitud']],
-            popup=(
-                f"{row['Nombre Común']} - {row['Población Total']} hab."
-            )
+            popup=popup_info,
+            icon=folium.Icon(color='blue')
         ).add_to(mapa)
     st_folium(mapa, width=700, height=500)
 
-    if st.button('Volver a la primera página'):
-        st.session_state.pagina = 1
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button('Volver a la página anterior'):
+            st.session_state.pagina = 2
+    with col2:
+        if st.button('Volver a la primera página'):
+            st.session_state.pagina = 1
