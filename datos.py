@@ -46,19 +46,19 @@ if st.session_state.pagina == 1:
     st.title('Análisis de Datos de Países')
     st.write('Este proyecto analiza datos globales sobre países.')
     st.write('Se incluyen tablas, estadísticas descriptivas, gráficos personalizados y un mapa interactivo.')
-    st.write('Página 1')
 
     col1, col2 = st.columns(2)
     with col1:
         if st.button('Ir a la siguiente página'):
             st.session_state.pagina = 2
+    with col2:
+        st.write('Página 1')
 
 # Página 2: Tablas
 elif st.session_state.pagina == 2:
     st.title('Tablas y Estadísticas de Datos')
     st.write('### Información General de los Países')
     st.write(df)
-    st.write('Página 2')
 
     # Filtrar por población total
     valor_filtro = st.slider('Selecciona un valor para filtrar la población total', 0, int(df['Población Total'].max()), 100000)
@@ -93,12 +93,13 @@ elif st.session_state.pagina == 2:
     with col2:
         if st.button('Ir a la siguiente página'):
             st.session_state.pagina = 3
+    with col2:
+        st.write('Página 2')
 
 # Página 3: Gráficos y Mapas
 elif st.session_state.pagina == 3:
     st.title('Gráficos y Mapas')
     st.write('### Gráfico Personalizado')
-    st.write('Página 3')
 
     # Selección del tipo de gráfico
     tipo_grafico = st.selectbox('Selecciona el tipo de gráfico', ['Barras', 'Líneas', 'Dispersión'])
@@ -174,3 +175,5 @@ elif st.session_state.pagina == 3:
     with col2:
         if st.button('Volver a la primera página'):
             st.session_state.pagina = 1
+    with col2:
+        st.write('Página 3')
