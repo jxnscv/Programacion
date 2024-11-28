@@ -8,7 +8,7 @@ import io
 
 # Función para obtener datos de países
 def obtener_datos_paises():
-    url = 'https://restcountries.com/v3.1/all'
+    url = 'https://raw.githubusercontent.com/jxnscv/Programacion/main/all.json'
     respuesta = requests.get(url)
     if respuesta.status_code == 200:
         return respuesta.json()
