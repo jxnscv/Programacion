@@ -66,15 +66,13 @@ elif st.session_state.pagina == 2:
 
     # Botón para descargar los datos como CSV y Excel
    if st.button('Descargar datos filtrados'):
-    # Convertir el DataFrame a CSV
-     csv = df_filtrado.to_csv(index=False)
-    # Crear el botón para descargar el CSV
-     st.download_button(
-         label='Descargar CSV',
-         data=csv,
-         file_name='datos_filtrados.csv',
-         mime='text/csv'
-     )
+       csv = df_filtrado.to_csv(index=False)
+       st.download_button(
+           label='Descargar CSV',
+           data=csv,
+           file_name='datos_filtrados.csv',
+           mime='text/csv'
+       )
 
     # Estadísticas de columnas seleccionadas
     st.write('### Estadísticas Descriptivas')
