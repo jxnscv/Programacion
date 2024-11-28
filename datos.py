@@ -46,6 +46,7 @@ if st.session_state.pagina == 1:
     st.title('Análisis de Datos de Países')
     st.write('Este proyecto analiza datos globales sobre países.')
     st.write('Se incluyen tablas, estadísticas descriptivas, gráficos personalizados y un mapa interactivo.')
+    st.write('Página 1')
 
     col1, col2 = st.columns(2)
     with col1:
@@ -57,6 +58,7 @@ elif st.session_state.pagina == 2:
     st.title('Tablas y Estadísticas de Datos')
     st.write('### Información General de los Países')
     st.write(df)
+    st.write('Página 2')
 
     # Filtrar por población total
     valor_filtro = st.slider('Selecciona un valor para filtrar la población total', 0, int(df['Población Total'].max()), 100000)
@@ -64,26 +66,25 @@ elif st.session_state.pagina == 2:
     st.write('Datos filtrados:')
     st.write(df_filtrado)
 
-if st.button('Descargar datos filtrados'):
+    if st.button('Descargar datos filtrados'):
+        csv = df_filtrado.to_csv(index=False)
+        st.download_button(
+            label='Descargar CSV',
+            data=csv,
+            file_name='datos_filtrados.csv',
+            mime='text/csv'
+        )
 
-    csv = df_filtrado.to_csv(index=False)
-    st.download_button(
-        label='Descargar CSV',
-        data=csv,
-        file_name='datos_filtrados.csv',
-        mime='text/csv'
-    )
-
-    # Estadísticas de columnas seleccionadas
-    st.write('### Estadísticas Descriptivas')
-    columna_estadisticas = st.selectbox('Selecciona una columna para estadísticas', df.columns[2:])
-    if columna_estadisticas:
-        media = df[columna_estadisticas].mean()
-        mediana = df[columna_estadisticas].median()
-        desviacion_estandar = df[columna_estadisticas].std()
-        st.write(f'Media: {media}')
-        st.write(f'Mediana: {mediana}')
-        st.write(f'Desviación Estándar: {desviacion_estandar}')
+        # Estadísticas de columnas seleccionadas
+        st.write('### Estadísticas Descriptivas')
+        columna_estadisticas = st.selectbox('Selecciona una columna para estadísticas', df.columns[2:])
+        if columna_estadisticas:
+            media = df[columna_estadisticas].mean()
+            mediana = df[columna_estadisticas].median()
+            desviacion_estandar = df[columna_estadisticas].std()
+            st.write(f'Media: {media}')
+            st.write(f'Mediana: {mediana}')
+            st.write(f'Desviación Estándar: {desviacion_estandar}')
 
     col1, col2 = st.columns(2)
     with col1:
@@ -97,6 +98,7 @@ if st.button('Descargar datos filtrados'):
 elif st.session_state.pagina == 3:
     st.title('Gráficos y Mapas')
     st.write('### Gráfico Personalizado')
+    st.write('Página 3')
 
     # Selección del tipo de gráfico
     tipo_grafico = st.selectbox('Selecciona el tipo de gráfico', ['Barras', 'Líneas', 'Dispersión'])
