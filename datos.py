@@ -60,18 +60,17 @@ elif st.session_state.pagina == 2:
 
     # Botón para descargar los datos como Excel
     if st.button('Descargar datos filtrados'):
-    csv = df_filtrado.to_csv(index=False)
-    st.download_button('Descargar CSV', csv, 'datos_filtrados.csv', 'text/csv')
+        csv = df_filtrado.to_csv(index=False)
+        st.download_button('Descargar CSV', csv, 'datos_filtrados.csv', 'text/csv')
+        excel = df_filtrado.to_excel(index=False, engine='openpyxl')
+        st.download_button('Descargar Excel', excel, 'datos_filtrados.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-    excel = df_filtrado.to_excel(index=False, engine='openpyxl')
-    st.download_button('Descargar Excel', excel, 'datos_filtrados.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-
-    st.download_button(
-        label='Descargar datos como Excel',
-        data=data_excel,
-        file_name='datos_paises.xlsx',
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+        st.download_button(
+            label='Descargar datos como Excel',
+            data=data_excel,
+            file_name='datos_paises.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 
     # Estadísticas de columnas seleccionadas
     st.write('### Estadísticas Descriptivas')
