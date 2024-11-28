@@ -26,7 +26,9 @@ def convertir_a_dataframe(paises):
             'Área en km²': pais.get('area', 0),
             'Número de Fronteras': len(pais.get('borders', [])),
             'Número de Idiomas Oficiales': len(pais.get('languages', {})),
-            'Número de Zonas Horarias': len(pais.get('timezones', []))
+            'Número de Zonas Horarias': len(pais.get('timezones', [])),
+            'Latitud': pais.get('latlng', [0])[0],
+            'Longitud': pais.get('latlng', [0])[1]
         })
     return pd.DataFrame(datos)
 
@@ -48,24 +50,21 @@ if st.session_state.pagina == 1:
     with col1:
         if st.button('Ir a la siguiente página'):
             st.session_state.pagina = 2
-    with col2:
-        st.write('Página 1')
 
 # Página 2: Tablas
 elif st.session_state.pagina == 2:
     st.title('Tablas y Estadísticas de Datos')
     st.write('### Información General de los Países')
-    st.write(df)
+    
+    # Mostrar la tabla excluyendo 'Latitud' y 'Longitud' de las opciones de ordenación
+    df_sin_latlon = df.drop(columns=['Latitud', 'Longitud'])  # Excluir estas columnas
+    st.write(df_sin_latlon)
 
     # Filtrar por población total
     valor_filtro = st.slider('Selecciona un valor para filtrar la población total', 0, int(df['Población Total'].max()), 100000)
     df_filtrado = df[df['Población Total'] >= valor_filtro]
     st.write('Datos filtrados:')
     st.write(df_filtrado)
-
-    # Botón para mostrar datos originales
-    if st.button('Mostrar datos originales'):
-        st.write(df)
 
     # Estadísticas de columnas seleccionadas
     st.write('### Estadísticas Descriptivas')
@@ -78,27 +77,6 @@ elif st.session_state.pagina == 2:
         st.write(f'Mediana: {mediana}')
         st.write(f'Desviación Estándar: {desviacion_estandar}')
 
-    # Ordenar la tabla
-    columna_ordenar = st.selectbox('Selecciona una columna para ordenar', df.columns[2:])
-    orden_ascendente = st.radio('Ordenar en:', ['Ascendente', 'Descendente'])
-
-    if columna_ordenar:
-        if orden_ascendente == 'Ascendente':
-            df_filtrado = df_filtrado.sort_values(by=columna_ordenar, ascending=True)
-        else:
-            df_filtrado = df_filtrado.sort_values(by=columna_ordenar, ascending=False)
-
-    st.write(df_filtrado)
-
-    if st.button('Descargar datos filtrados'):
-        csv = df_filtrado.to_csv(index=False)
-        st.download_button(
-            label='Descargar CSV',
-            data=csv,
-            file_name='datos_filtrados.csv',
-            mime='text/csv'
-        )
-
     col1, col2 = st.columns(2)
     with col1:
         if st.button('Volver a la primera página'):
@@ -106,8 +84,6 @@ elif st.session_state.pagina == 2:
     with col2:
         if st.button('Ir a la siguiente página'):
             st.session_state.pagina = 3
-    with col2:
-        st.write('Página 2')
 
 # Página 3: Gráficos y Mapas
 elif st.session_state.pagina == 3:
@@ -168,17 +144,21 @@ elif st.session_state.pagina == 3:
 
     mapa = folium.Map(location=[20, 0], zoom_start=2)
     for _, row in df_filtrado_mapa.iterrows():
-        popup_info = (
-            f"<strong>Nombre Común:</strong> {row['Nombre Común']}<br>"
-            f"<strong>Región Geográfica:</strong> {row['Región Geográfica']}<br>"
-            f"<strong>Población Total:</strong> {row['Población Total']}<br>"
-            f"<strong>Área en km²:</strong> {row['Área en km²']}<br>"
-        )
-        folium.Marker(
-            location=[row['Latitud'], row['Longitud']],
-            popup=popup_info,
-            icon=folium.Icon(color='blue')
-        ).add_to(mapa)
+        # Obtener las coordenadas de Latitud y Longitud
+        latlng = row.get('Latitud'), row.get('Longitud')
+        if latlng and None not in latlng:  # Solo agregar si existen las coordenadas
+            popup_info = (
+                f"<strong>Nombre Común:</strong> {row['Nombre Común']}<br>"
+                f"<strong>Región Geográfica:</strong> {row['Región Geográfica']}<br>"
+                f"<strong>Población Total:</strong> {row['Población Total']}<br>"
+                f"<strong>Área en km²:</strong> {row['Área en km²']}<br>"
+            )
+            folium.Marker(
+                location=latlng,
+                popup=popup_info,
+                icon=folium.Icon(color='blue')
+            ).add_to(mapa)
+        
     st_folium(mapa, width=700, height=500)
 
     col1, col2 = st.columns(2)
@@ -188,5 +168,3 @@ elif st.session_state.pagina == 3:
     with col2:
         if st.button('Volver a la primera página'):
             st.session_state.pagina = 1
-    with col2:
-        st.write('Página 3')
