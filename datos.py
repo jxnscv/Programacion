@@ -59,12 +59,12 @@ elif st.session_state.pagina == 2:
     st.write(df)
 
     # Botón para descargar los datos como Excel
-    st.write('### Descargar Datos')
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Datos')
-        writer.save()
-    data_excel = output.getvalue()
+    if st.button('Descargar datos filtrados'):
+    csv = df_filtrado.to_csv(index=False)
+    st.download_button('Descargar CSV', csv, 'datos_filtrados.csv', 'text/csv')
+
+    excel = df_filtrado.to_excel(index=False, engine='openpyxl')
+    st.download_button('Descargar Excel', excel, 'datos_filtrados.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     st.download_button(
         label='Descargar datos como Excel',
