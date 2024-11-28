@@ -4,7 +4,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import st_folium
-from io import BytesIO
 
 # Función para obtener datos de países
 def obtener_datos_paises():
@@ -27,9 +26,7 @@ def convertir_a_dataframe(paises):
             'Área en km²': pais.get('area', 0),
             'Número de Fronteras': len(pais.get('borders', [])),
             'Número de Idiomas Oficiales': len(pais.get('languages', {})),
-            'Número de Zonas Horarias': len(pais.get('timezones', [])),
-            'Latitud': pais.get('latlng', [0])[0],
-            'Longitud': pais.get('latlng', [0])[1]
+            'Número de Zonas Horarias': len(pais.get('timezones', []))
         })
     return pd.DataFrame(datos)
 
