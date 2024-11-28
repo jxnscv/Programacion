@@ -64,7 +64,7 @@ elif st.session_state.pagina == 2:
     st.write('Datos filtrados:')
     st.write(df_filtrado)
 
-    # Botón para descargar los datos como CSV y Excel
+    # Botón para descargar los datos como CSV 
    if st.button('Descargar datos filtrados'):
        csv = df_filtrado.to_csv(index=False)
        st.download_button(
