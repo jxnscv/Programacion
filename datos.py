@@ -55,12 +55,15 @@ if st.session_state.pagina == 1:
 elif st.session_state.pagina == 2:
     st.title('Tablas y Estadísticas de Datos')
     st.write('### Información General de los Países')
-    
-    # Mostrar la tabla excluyendo 'Latitud' y 'Longitud' de las opciones de ordenación
-    df_sin_latlon = df.drop(columns=['Latitud', 'Longitud'])  # Excluir estas columnas
-    st.write(df_sin_latlon)
 
-    # Filtrar por población total
+    # Mostrar la tabla de datos
+    st.write(df)
+
+    # Botón para mostrar datos originales
+    if st.button("Mostrar Datos Originales"):
+        st.write(df)
+
+    # Opción de filtrar por población total
     valor_filtro = st.slider('Selecciona un valor para filtrar la población total', 0, int(df['Población Total'].max()), 100000)
     df_filtrado = df[df['Población Total'] >= valor_filtro]
     st.write('Datos filtrados:')
@@ -76,6 +79,11 @@ elif st.session_state.pagina == 2:
         st.write(f'Media: {media}')
         st.write(f'Mediana: {mediana}')
         st.write(f'Desviación Estándar: {desviacion_estandar}')
+
+    # Opción para descargar CSV
+    st.write('### Descargar Datos')
+    csv = df.to_csv(index=False)
+    st.download_button("Descargar CSV", csv, "datos_paises.csv", "text/csv")
 
     col1, col2 = st.columns(2)
     with col1:
