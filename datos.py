@@ -65,23 +65,16 @@ elif st.session_state.pagina == 2:
     st.write(df_filtrado)
 
     # Botón para descargar los datos como CSV y Excel
-    if st.button('Descargar datos filtrados'):
-        csv = df_filtrado.to_csv(index=False)
-        st.download_button('Descargar CSV', csv, 'datos_filtrados.csv', 'text/csv')
-
-        # Convertir a Excel
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df_filtrado.to_excel(writer, index=False, sheet_name='Datos Filtrados')
-            writer.save()
-        data_excel = output.getvalue()
-
-        st.download_button(
-            label='Descargar datos como Excel',
-            data=data_excel,
-            file_name='datos_filtrados.xlsx',
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
+   if st.button('Descargar datos filtrados'):
+    # Convertir el DataFrame a CSV
+     csv = df_filtrado.to_csv(index=False)
+    # Crear el botón para descargar el CSV
+     st.download_button(
+         label='Descargar CSV',
+         data=csv,
+         file_name='datos_filtrados.csv',
+         mime='text/csv'
+     )
 
     # Estadísticas de columnas seleccionadas
     st.write('### Estadísticas Descriptivas')
