@@ -2,13 +2,10 @@ import requests
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-import folium
-from streamlit_folium import st_folium
 import io
 
-# Función para obtener datos de países
 def obtener_datos_paises():
-    url = 'https://raw.githubusercontent.com/jxnscv/Programacion/main/all.json'
+    url = 'https://restcountries.com/v3.1/all'
     respuesta = requests.get(url)
     if respuesta.status_code == 200:
         return respuesta.json()
@@ -16,7 +13,6 @@ def obtener_datos_paises():
         st.error(f'Error: {respuesta.status_code}')
         return []
 
-# Función para convertir los datos a DataFrame
 def convertir_a_dataframe(paises):
     datos = []
     for pais in paises:
@@ -27,17 +23,14 @@ def convertir_a_dataframe(paises):
             'Área en km²': pais.get('area', 0),
             'Número de Fronteras': len(pais.get('borders', [])),
             'Número de Idiomas Oficiales': len(pais.get('languages', {})),
-            'Número de Zonas Horarias': len(pais.get('timezones', [])),
-            'Latitud': pais.get('latlng', [0])[0],
-            'Longitud': pais.get('latlng', [0])[1]
+            'Número de Zonas Horarias': len(pais.get('timezones', []))
         })
     return pd.DataFrame(datos)
 
-# Obtener los datos
+
 paises = obtener_datos_paises()
 df = convertir_a_dataframe(paises)
 
-# Configuración de la interfaz de Streamlit
 st.title('Análisis de Datos de Países')
 
 st.sidebar.title("Navegación")
@@ -57,6 +50,7 @@ if pagina == "Descripción":
 elif pagina == "Interacción con Datos":
     st.title("Interacción con Datos")
     st.subheader("Datos Originales")
+    
     if st.checkbox('Mostrar datos originales'):
         st.dataframe(df)
 
@@ -75,8 +69,12 @@ elif pagina == "Interacción con Datos":
         st.dataframe(df_ordenado)
 
     st.subheader("Filtrar por Población")
-    valor_filtro = st.slider("Selecciona un valor para filtrar la población total", 0, int(df["Población Total"].max()), 100000)
-    rango_min, rango_max = st.slider("Selecciona un rango de población", int(df["Población Total"].min()), int(df["Población Total"].max()), (0, int(df["Población Total"].max())))
+    # Cambié el slider para que filtre el rango completo de la población
+    rango_min, rango_max = st.slider("Selecciona un rango de población", 
+                                     int(df["Población Total"].min()), 
+                                     int(df["Población Total"].max()), 
+                                     (int(df["Población Total"].min()), int(df["Población Total"].max())))
+    # Aquí, solo se muestra la tabla filtrada con base en el rango de población seleccionado
     df_filtrado = df[(df["Población Total"] >= rango_min) & (df["Población Total"] <= rango_max)]
     st.dataframe(df_filtrado)
 
@@ -108,33 +106,3 @@ elif pagina == "Gráficos Interactivos":
     fig.savefig(buffer, format="png")
     buffer.seek(0)
     st.download_button("Descargar Gráfico", buffer, file_name="grafico.png")
-
-    st.subheader("Mapa Interactivo")
-    st.write("Aquí puedes ver la ubicación de los países en el mapa según su población.")
-    min_poblacion, max_poblacion = st.slider(
-        "Selecciona un rango de población para mostrar en el mapa",
-        int(df['Población Total'].min()), 
-        int(df['Población Total'].max()), 
-        (int(df['Población Total'].min()), int(df['Población Total'].max()))
-    )
-
-    df_filtrado_mapa = df[(df['Población Total'] >= min_poblacion) & 
-                          (df['Población Total'] <= max_poblacion)]
-
-    mapa = folium.Map(location=[20, 0], zoom_start=2)
-    for _, row in df_filtrado_mapa.iterrows():
-        latlng = row.get('Latitud'), row.get('Longitud')
-        if latlng and None not in latlng:  # Solo agregar si existen las coordenadas
-            popup_info = (
-                f"<strong>Nombre Común:</strong> {row['Nombre Común']}<br>"
-                f"<strong>Región Geográfica:</strong> {row['Región Geográfica']}<br>"
-                f"<strong>Población Total:</strong> {row['Población Total']}<br>"
-                f"<strong>Área en km²:</strong> {row['Área en km²']}<br>"
-            )
-            folium.Marker(
-                location=latlng,
-                popup=popup_info,
-                icon=folium.Icon(color='blue')
-            ).add_to(mapa)
-    
-    st_folium(mapa, width=700, height=500)
